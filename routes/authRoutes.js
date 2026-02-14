@@ -2,7 +2,6 @@ import User from "../models/User.js";
 import express from "express";
 import { register, login } from "../controllers/authController.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
-import User from "../models/User.js";
 import AuditLog from "../models/AuditLog.js";
 
 
