@@ -17,9 +17,15 @@ const orderSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pendente", "pago", "entregue", "cancelado"],
+      enum: ["pendente", "aguardando_pix", "pago", "cancelado"],
       default: "pendente"
-    }
+    },
+
+    // ✅ MisticPay
+    paymentProvider: { type: String, default: "misticpay" },
+    misticpayTransactionId: { type: String, default: null },
+    pixCopyPaste: { type: String, default: null },
+    pixQrCodeBase64: { type: String, default: null }
   },
   { timestamps: true }
 );

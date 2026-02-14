@@ -8,6 +8,8 @@ import cookieParser from "cookie-parser";
 import orderRoutes from "./routes/orderRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import paymentsRoutes from "./routes/paymentsRoutes.js";
+
 
 dotenv.config();
 
@@ -44,6 +46,8 @@ app.get("/", (req, res) => res.send("API online ✅"));
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/payments", paymentsRoutes);
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Servidor rodando na porta " + PORT));
