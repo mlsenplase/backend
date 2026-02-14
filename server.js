@@ -1,3 +1,9 @@
+import { protect, adminOnly } from "./middleware/authMiddleware.js";
+
+app.get("/api/auth/admin", protect, adminOnly, (req, res) => {
+  res.json({ ok: true, message: "Admin OK" });
+});
+
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
