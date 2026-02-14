@@ -8,7 +8,6 @@ import cookieParser from "cookie-parser";
 import orderRoutes from "./routes/orderRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
-app.use("/api/orders", orderRoutes);
 
 dotenv.config();
 
@@ -44,6 +43,7 @@ app.get("/", (req, res) => res.send("API online ✅"));
 // ✅ rotas (depois do app existir)
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Servidor rodando na porta " + PORT));
