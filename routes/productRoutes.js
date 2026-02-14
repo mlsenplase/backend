@@ -4,31 +4,53 @@ import { protect, adminOnly } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Listar
+/*
+=====================
+ROTA PÚBLICA
+=====================
+*/
+router.get("/public", async (req, res) => {
+  const items = await Product.find({ active: true }).sort({ createdAt: -1 });
+  res.json(items);
+});
+
+/*
+=====================
+ADMIN
+=====================
+*/
+
+// listar todos (admin)
 router.get("/", protect, adminOnly, async (req, res) => {
   const items = await Product.find().sort({ createdAt: -1 });
   res.json(items);
 });
 
-// Criar
+// criar
 router.post("/", protect, adminOnly, async (req, res) => {
-  const { title, description, price, active } = req.body;
-  const item = await Product.create({ title, description, price, active });
-  res.status(201).json(item);
+  const { title, description, price } = req.body;
+
+  const product = await Product.create({
+    title,
+    description,
+    price
+  });
+
+  res.status(201).json(product);
 });
 
-// Editar
+// editar
 router.put("/:id", protect, adminOnly, async (req, res) => {
-  const { title, description, price, active } = req.body;
-  const item = await Product.findByIdAndUpdate(
+  const updated = await Product.findByIdAndUpdate(
     req.params.id,
-    { title, description, price, active },
+    req.body,
     { new: true }
   );
-  res.json(item);
+
+  res.json(updated);
 });
 
-// Deletar
+// deletar
 router.delete("/:id", protect, adminOnly, async (req, res) => {
   await Product.findByIdAndDelete(req.params.id);
   res.json({ ok: true });

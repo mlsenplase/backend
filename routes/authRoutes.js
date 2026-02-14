@@ -3,12 +3,15 @@ import { register, login } from "../controllers/authController.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
 import User from "../models/User.js";
 import AuditLog from "../models/AuditLog.js";
+import { register, login, logout } from "../controllers/authController.js";
 
 const router = express.Router();
 
 // auth básico
 router.post("/register", register);
 router.post("/login", login);
+router.post("/logout", logout);
+
 
 // check admin
 router.get("/admin", protect, adminOnly, (req, res) => {
@@ -51,8 +54,13 @@ router.patch("/users/:id/role", protect, adminOnly, async (req, res) => {
 
 // logs (últimos 200)
 router.get("/logs", protect, adminOnly, async (req, res) => {
-  const logs = await AuditLog.find().sort({ createdAt: -1 }).limit(200);
+  const { type, nome } = req.query;
+
+  const q = {};
+  if (type) q.type = type;
+  if (nome) q.nome = { $regex: String(nome), $options: "i" };
+
+  const logs = await AuditLog.find(q).sort({ createdAt: -1 }).limit(200);
   res.json(logs);
 });
-
 export default router;
