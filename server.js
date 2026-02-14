@@ -11,6 +11,25 @@ app.use("/api/products", productRoutes);
 dotenv.config();
 
 const app = express();
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://mstore-frontend-seven.vercel.app"
+];
+
+app.use(cors({
+  origin: (origin, cb) => {
+    // permite Postman/cURL (sem origin) e os sites permitidos
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    return cb(new Error("Not allowed by CORS: " + origin));
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: false, // usando Bearer token, não precisa cookie
+  optionsSuccessStatus: 204
+}));
+
+// responde preflight (IMPORTANTÍSSIMO)
+app.options("*", cors());
 
 app.use(cors({
   origin: [
