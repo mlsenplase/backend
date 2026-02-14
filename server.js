@@ -10,10 +10,12 @@ import jwt from "jsonwebtoken";
 dotenv.config();
 
 const app = express();
-
-app.use(cors());
-app.use(express.json());
-app.use(helmet());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://mstore-frontend-seven.vercel.app/"
+  ]
+}));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
