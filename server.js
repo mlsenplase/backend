@@ -1,23 +1,22 @@
-import { protect, adminOnly } from "./middleware/authMiddleware.js";
-
-app.get("/api/auth/admin", protect, adminOnly, (req, res) => {
-  res.json({ ok: true, message: "Admin OK" });
-});
-
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
 const app = express();
 
-app.use(cors({ origin: true, credentials: true }));
-app.options("*", cors());
-
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://mstore-frontend-seven.vercel.app"
+  ],
+  credentials: true
+}));
 app.use(express.json());
 app.use(helmet());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 200 }));
@@ -28,9 +27,8 @@ mongoose.connect(process.env.MONGO_URL)
 
 app.get("/", (req, res) => res.send("API online ✅"));
 
-app.post("/api/auth/login", (req, res) => {
-  res.json({ token: "teste", role: "admin" });
-});
+// ✅ suas rotas aqui (depois do app existir)
+app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Servidor rodando na porta " + PORT));

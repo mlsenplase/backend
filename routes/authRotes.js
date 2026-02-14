@@ -8,7 +8,7 @@ router.post("/register", register);
 router.post("/login", login);
 
 router.get("/admin", protect, adminOnly, (req, res) => {
-  res.json("Área admin segura 🔒");
+  res.json({ ok: true, message: "Admin OK" });
 });
 
 export default router;
