@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import AuditLog from "../models/AuditLog.js";
 
 export const register = async (req, res) => {
   try {
@@ -27,6 +28,21 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.socket.remoteAddress || "";
+const userAgent = req.headers["user-agent"] || "";
+
+if (!user) {
+  await AuditLog.create({ type: "login_fail", nome, ip, userAgent, meta: { reason: "user_not_found" }});
+  return res.status(400).json({ message: "Usuário não encontrado" });
+}
+
+if (!senhaValida) {
+  await AuditLog.create({ type: "login_fail", userId: user._id, nome: user.nome, ip, userAgent, meta: { reason: "wrong_password" }});
+  return res.status(400).json({ message: "Senha incorreta" });
+}
+
+// sucesso
+await AuditLog.create({ type: "login_success", userId: user._id, nome: user.nome, ip, userAgent });
     const { nome, senha } = req.body;
 
     const user = await User.findOne({ nome });
