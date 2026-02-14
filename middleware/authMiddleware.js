@@ -1,19 +1,24 @@
 import jwt from "jsonwebtoken";
 
 export function protect(req, res, next) {
-  const auth = req.headers.authorization; // "Bearer TOKEN"
+  // 1) tenta cookie
+  const cookieToken = req.cookies?.token;
 
-  if (!auth || !auth.startsWith("Bearer ")) {
+  // 2) tenta header Authorization
+  const auth = req.headers.authorization;
+  const headerToken = auth && auth.startsWith("Bearer ") ? auth.split(" ")[1] : null;
+
+  const token = cookieToken || headerToken;
+
+  if (!token) {
     return res.status(401).json({ message: "Sem token" });
   }
-
-  const token = auth.split(" ")[1];
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded; // { id, role, iat, exp }
     next();
-  } catch (e) {
+  } catch {
     return res.status(401).json({ message: "Token inválido" });
   }
 }

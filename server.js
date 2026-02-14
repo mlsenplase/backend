@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import cookieParser from "cookie-parser";
 
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
@@ -22,15 +23,13 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
     return cb(new Error("Not allowed by CORS: " + origin));
   },
+  credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: false,
-  optionsSuccessStatus: 204
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-// Preflight
 app.options("*", cors());
-
+app.use(cookieParser());
 app.use(express.json());
 app.use(helmet());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 200 }));
