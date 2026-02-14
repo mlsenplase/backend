@@ -1,59 +1,32 @@
-import express from "express";
-import Product from "../models/Product.js";
-import { protect, adminOnly } from "../middleware/authMiddleware.js";
+import multer from "multer";
+import cloudinary from "../config/cloudinary.js";
 
-const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
-/*
-=====================
-ROTA PÚBLICA
-=====================
-*/
-router.get("/public", async (req, res) => {
-  const items = await Product.find({ active: true }).sort({ createdAt: -1 });
-  res.json(items);
-});
-
-/*
-=====================
-ADMIN
-=====================
-*/
-
-// listar todos (admin)
-router.get("/", protect, adminOnly, async (req, res) => {
-  const items = await Product.find().sort({ createdAt: -1 });
-  res.json(items);
-});
-
-// criar
-router.post("/", protect, adminOnly, async (req, res) => {
+router.post("/", protect, adminOnly, upload.single("image"), async (req, res) => {
   const { title, description, price } = req.body;
+
+  let imageUrl = "";
+
+  if (req.file) {
+    const result = await cloudinary.uploader.upload_stream(
+      { folder: "mstore" },
+      (error, result) => {
+        if (error) throw error;
+        imageUrl = result.secure_url;
+      }
+    );
+
+    const stream = result;
+    stream.end(req.file.buffer);
+  }
 
   const product = await Product.create({
     title,
     description,
-    price
+    price,
+    image: imageUrl
   });
 
   res.status(201).json(product);
 });
-
-// editar
-router.put("/:id", protect, adminOnly, async (req, res) => {
-  const updated = await Product.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true }
-  );
-
-  res.json(updated);
-});
-
-// deletar
-router.delete("/:id", protect, adminOnly, async (req, res) => {
-  await Product.findByIdAndDelete(req.params.id);
-  res.json({ ok: true });
-});
-
-export default router;
